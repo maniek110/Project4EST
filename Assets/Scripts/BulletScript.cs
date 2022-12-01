@@ -5,21 +5,38 @@ using UnityEngine;
 public class BulletScript : MonoBehaviour
 {
     [SerializeField] private float _maxCounter = 2f;
-    public float timer = 0f;
+    public float ExplosionRange;
+    
+    private float Timer = 0f;
+
     void Update()
     {
-        timer += Time.deltaTime;
-        if (timer >= _maxCounter)
+        Timer += Time.deltaTime;
+        if (Timer >= _maxCounter)
         {
             gameObject.SetActive(false);
         }
     }
-    private void OnCollisionEnter2D(Collision2D collision)
+    private void OnTriggerEnter(Collider other)
     {
-        if (collision.gameObject.tag == "Asteroid")
+        Debug.Log(other.gameObject.tag == "Enemy");
+        if (other.gameObject.tag == "Enemy")
         {
-            //collision.gameObject.GetComponent<AsteroidScript>().Dissable();
+            other.gameObject.GetComponent<EnemyScript>().DealDamage(1);
         }
         gameObject.SetActive(false);
+    }
+    public void Explode()
+    {
+        Collider[] hitColliders = Physics.OverlapSphere(transform.position, ExplosionRange);
+        foreach (var hitCollider in hitColliders)
+        {
+            if (hitCollider.tag == "Enemy")
+            {
+                hitCollider.gameObject.GetComponent<EnemyScript>().DealDamage(1);
+            }
+        }
+        gameObject.SetActive(false);
+
     }
 }
